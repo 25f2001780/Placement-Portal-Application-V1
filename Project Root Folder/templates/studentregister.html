@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration | Placehub</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/studentregister.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+      <div class="left">
+            <div class="left_content">
+                <svg viewBox="0 0 24 24" width="180" height="180">
+                <defs>
+               <linearGradient id="purpleBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#312E81"/>
+                <stop offset="40%" stop-color="#7b68ee"/>
+                <stop offset="65%" stop-color="#4f7bff"/>
+                <stop offset="100%" stop-color="#22D3EE"/>
+              </linearGradient>
+                </defs>
+
+      
+              <path
+  d="M12 2L2 22h20L12 2zm0 5.8l5.5 11H6.5L12 7.8z"
+  fill="url(#purpleBlue)"
+/>
+
+               </svg>                <h1>Join Placehub to Today</h1>
+                 <p>Register as a student or company and kickstart your<br> placement journey.</p>
+            </div>
+        <div class="l">
+            <ul>
+                <li>✓ Browse & apply to placement drives</li>
+                <li>✓ Track application status in real-time</li>
+                <li>✓ Get notified about new opportunities</li>
+                <li>✓ Build your professional profile</li>
+            </ul>
+        </div>
+        </div>
+
+        <div class="right">
+            <div class="form-container">
+                <div class="heading">
+                  <br><br><br><br><br><br>
+                    <h2>Create Account</h2>
+                    <p class="sub">Register as a Student or Company</p>
+                </div>
+
+                <div class="role-switch">
+          <a href="/signupCompany"><button class="a">Company</button></a>
+          <a href="/signupStudent"><button class="a"  style="background-color:#111318;">Student</button></a>
+        </div>
+
+
+                <form action="/registerStudent" method="post">
+                    <div class="name-row">
+                        <div class="input-group">
+                            <label for="firstname">First Name</label>
+                            <input type="text" id="firstname" name="firstname" placeholder="Enter First Name" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="lastname">Last Name</label>
+                            <input type="text" id="lastname" name="lastname" placeholder="Enter Last Name" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    </div>
+                    <div class="password-meter-container">
+                        <div class="meter-bar"><div class="meter-fill" id="meter-fill"></div></div>
+                        <div class="meter-text" id="meter-text">Password Strength</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+91 1234567890" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="department">Department</label>
+                        <input type="text" id="department" name="department" placeholder="e.g. Computer Science" required>
+                    </div>
+                    
+                    <div class="name-row">
+                        <div class="input-group">
+                            <label for="cgpa">CGPA</label>
+                            <input type="number" step="0.01" id="cgpa" name="cgpa" placeholder="e.g. 8.5" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="passingYear">Passing Year</label>
+                            <input type="number" id="passingYear" name="passingYear" placeholder="e.g. 2025" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="birthday">Birthday</label>
+                        <input type="date" id="birthday" name="birthday" required>
+                    </div>
+                    <p style="color: red;">{{error}}</p>
+                    <button type="submit" class="signin-btn">Create Student Account</button>
+
+                    <p class="register">
+                        Already have an account? <a href="/login">Login</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const passwordInput = document.getElementById("password");
+        const meterFill = document.getElementById("meter-fill");
+        const meterText = document.getElementById("meter-text");
+        
+        // Find the submit button in the form
+        const submitBtn = document.querySelector(".signin-btn") || document.querySelector("input[type='submit']");
+        
+        // Disable by default
+        submitBtn.disabled = true;
+
+        passwordInput.addEventListener("input", function() {
+            const val = passwordInput.value;
+            let score = 0;
+            
+            // Check conditions
+            if (val.length >= 8) score += 1;
+            if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score += 1;
+            if (/\d/.test(val)) score += 1;
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(val)) score += 1;
+
+            // Update UI based on score
+            switch(score) {
+                case 0:
+                    meterFill.style.width = "0%";
+                    meterText.textContent = "Password Strength";
+                    submitBtn.disabled = true;
+                    break;
+                case 1:
+                    meterFill.style.width = "25%";
+                    meterFill.style.backgroundColor = "#ef4444"; // Red
+                    meterText.textContent = "Weak (Need uppercase, number, & symbol)";
+                    submitBtn.disabled = true;
+                    break;
+                case 2:
+                    meterFill.style.width = "50%";
+                    meterFill.style.backgroundColor = "#f59e0b"; // Orange
+                    meterText.textContent = "Fair (Add a number and symbol)";
+                    submitBtn.disabled = true;
+                    break;
+                case 3:
+                    meterFill.style.width = "75%";
+                    meterFill.style.backgroundColor = "#eab308"; // Yellow
+                    meterText.textContent = "Good (Almost there!)";
+                    submitBtn.disabled = true;
+                    break;
+                case 4:
+                    meterFill.style.width = "100%";
+                    meterFill.style.backgroundColor = "#10b981"; // Green
+                    meterText.textContent = "Strong! Ready to go.";
+                    submitBtn.disabled = false; // Enable submission
+                    break;
+            }
+            
+            // Handle completely empty input
+            if (val.length === 0) {
+                submitBtn.disabled = true;
+                meterFill.style.width = "0%";
+                meterText.textContent = "Password Strength";
+            }
+        });
+    });
+</script>
+</body>
+</html>

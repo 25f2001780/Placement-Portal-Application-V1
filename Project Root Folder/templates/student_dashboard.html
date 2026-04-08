@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - PlaceHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-body: #0b0f19; --bg-surface: #111522; --bg-surface-hover: #1a1f2e; --bg-input: #151926; --border-color: #1f2537; --text-main: #f3f4f6; --text-muted: #9ca3af; --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%); --accent-solid: #6366f1; --status-shortlisted-text: #f59e0b; --status-shortlisted-bg: rgba(245, 158, 11, 0.1); --status-applied-text: #3b82f6; --status-applied-bg: rgba(59, 130, 246, 0.1); --status-selected-text: #10b981; --status-selected-bg: rgba(16, 185, 129, 0.1); --status-rejected-text: #ef4444; --status-rejected-bg: rgba(239, 68, 68, 0.1); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; font-size: 14px; }
+        a { text-decoration: none; color: inherit; } ul { list-style: none; } button { cursor: pointer; border: none; background: none; color: inherit; } input, select { font-family: inherit; }
+        .sidebar { width: 250px; background-color: var(--bg-surface); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px 20px; } .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; } .brand svg { width: 28px; height: 28px; fill: var(--accent-solid); } .brand h1 { font-size: 18px; font-weight: 600; color: #fff; } .role-badge { background: #1f2537; color: var(--text-muted); font-size: 10px; padding: 4px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase; }
+        .nav-menu { flex: 1; display: flex; flex-direction: column; gap: 8px; } .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: var(--text-muted); font-weight: 500; transition: 0.2s; } .nav-item svg { width: 18px; height: 18px; fill: currentColor; } .nav-item:hover, .nav-item.active { background-color: rgba(99, 102, 241, 0.1); color: #fff; } .nav-item.active svg { fill: var(--accent-solid); }
+        .sign-out { display: flex; align-items: center; gap: 12px; color: var(--text-muted); padding: 12px 16px; margin-top: auto; font-weight: 500; border-radius: 8px; transition: 0.2s; } .sign-out svg { width: 18px; height: 18px; fill: currentColor; } .sign-out:hover { color: #fff; background-color: var(--bg-surface-hover); }
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .top-header { height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 1px solid var(--border-color); background-color: var(--bg-body); flex-shrink: 0; } .top-header h2 { font-size: 18px; font-weight: 600; } .header-actions { display: flex; align-items: center; gap: 24px; } .notification-btn { color: var(--text-muted); } .notification-btn svg { width: 20px; height: 20px; fill: currentColor; }
+        .profile-dropdown { display: flex; align-items: center; gap: 12px; cursor: pointer; } .avatar-small { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; overflow: hidden; } .avatar-small img { width: 100%; height: 100%; object-fit: contain; } .profile-name { font-weight: 500; }
+        .content-scroll { flex: 1; overflow-y: auto; padding: 32px 40px; } .content-container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+        
+        .profile-card { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 32px; display: flex; align-items: center; justify-content: space-between; } .profile-info { display: flex; align-items: center; gap: 24px; }
+        .avatar-large { width: 80px; height: 80px; border-radius: 50%; background-color: #0d2728; color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 600; overflow: hidden; position: relative; cursor: pointer; border: 1px dashed transparent; transition: 0.2s;} .avatar-large:hover { border-color: var(--accent-solid); } .avatar-large img { width: 100%; height: 100%; object-fit: contain; } .hover-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.2s; color: white; font-size: 11px; font-weight: 600; text-align: center; padding: 5px; } .avatar-large:hover .hover-overlay { opacity: 1; }
+        .profile-details h1 { font-size: 22px; margin-bottom: 8px; color: #fff; } .profile-meta { display: flex; flex-wrap: wrap; gap: 16px; color: var(--text-muted); font-size: 13px; } .meta-item { display: flex; align-items: center; gap: 6px; } .meta-item svg { width: 14px; height: 14px; fill: currentColor; }
+        .profile-actions { display: flex; gap: 12px; } .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-weight: 500; font-size: 13px; transition: 0.2s; } .btn svg { width: 16px; height: 16px; fill: currentColor; } .btn-outline { border: 1px solid var(--border-color); color: var(--text-main); } .btn-outline:hover { background-color: var(--bg-surface-hover); } .btn-primary { background: var(--accent-gradient); color: #fff; border: none; } .btn-primary:hover { opacity: 0.9; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; } .stat-card { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; } .stat-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; background-color: rgba(99, 102, 241, 0.1); color: #818cf8; } .stat-icon svg { width: 20px; height: 20px; fill: currentColor; } .stat-value { font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 4px; } .stat-label { color: var(--text-muted); font-size: 13px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; } .section-header h3 { font-size: 16px; font-weight: 600; color: #fff; } .view-all { color: #818cf8; font-size: 13px; font-weight: 500; } .view-all:hover { text-decoration: underline; }
+        
+        .drives-wrapper { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; } .drive-item { display: flex; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-color); transition: 0.2s; } .drive-item:last-child { border-bottom: none; } .drive-item:hover { background-color: var(--bg-surface-hover); }
+        .drive-logo { width: 48px; height: 48px; border-radius: 8px; background-color: rgba(99, 102, 241, 0.1); display: flex; align-items: center; justify-content: center; margin-right: 16px; overflow:hidden; } .drive-logo img { width: 100%; height: 100%; object-fit: contain; }
+        .drive-info { flex: 1; } .drive-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 4px; } .drive-company { color: var(--text-muted); font-size: 13px; margin-bottom: 8px; } .drive-meta { display: flex; gap: 16px; color: var(--text-muted); font-size: 12px; } .drive-meta span { display: flex; align-items: center; gap: 4px; } .drive-meta svg { width: 12px; height: 12px; fill: currentColor; } .salary { color: #fff; font-weight: 500; }
+        .drive-actions { display: flex; align-items: center; gap: 16px; } .icon-btn { color: var(--text-muted); padding: 8px; border-radius: 6px; } .icon-btn:hover { background-color: rgba(255,255,255,0.05); color: #fff; } .icon-btn svg { width: 18px; height: 18px; fill: currentColor; } .badge { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; } .badge-applied { background-color: var(--status-applied-bg); color: var(--status-applied-text); }
+        
+        .history-wrapper { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; } table { width: 100%; border-collapse: collapse; text-align: left; } th { padding: 16px 24px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border-color); } td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 13px; } tr:last-child td { border-bottom: none; } .td-drive { font-weight: 600; color: #fff; } .td-company { color: var(--text-muted); }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; } .status-shortlisted { background-color: var(--status-shortlisted-bg); color: var(--status-shortlisted-text); } .status-applied { background-color: var(--status-applied-bg); color: var(--status-applied-text); } .status-selected { background-color: var(--status-selected-bg); color: var(--status-selected-text); } .status-rejected { background-color: var(--status-rejected-bg); color: var(--status-rejected-text); }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 100; } .modal-overlay.active { display: flex; } .modal-container { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+        .modal-md { max-width: 650px; } .modal-sm { max-width: 450px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 24px; border-bottom: 1px solid var(--border-color); } .modal-header h3 { font-size: 16px; font-weight: 600; color: #fff; } .close-btn { color: var(--text-muted); } .close-btn:hover { color: #fff; } .close-btn svg { width: 20px; height: 20px; fill: currentColor; } .modal-body { padding: 24px; } .modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; border-top: 1px solid var(--border-color); }
+        .upload-dropzone { border: 2px dashed var(--border-color); border-radius: 12px; padding: 40px 20px; text-align: center; cursor: pointer; position: relative; background-color: rgba(21, 25, 38, 0.5); } .upload-dropzone:hover { border-color: var(--accent-solid); background-color: var(--bg-input); } .upload-dropzone input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .drive-header-block { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; } .drive-header-main { display: flex; align-items: center; gap: 16px; } .drive-meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; } .meta-box { display: flex; flex-direction: column; gap: 4px; } .meta-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; } .meta-value { font-size: 14px; font-weight: 600; color: #fff; } .detail-section { margin-bottom: 24px; } .section-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; } .section-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; } .eligibility-list { display: flex; flex-direction: column; gap: 8px; } .eligibility-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); } .eligibility-item svg { width: 16px; height: 16px; fill: #10b981; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div>
+            <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 5.8l5.5 11H6.5L12 7.8z"/></svg><h1>PlaceHub</h1><span class="role-badge">STUDENT</span></div>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('student_dashboard') }}" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard</a></li>
+                <li><a href="{{ url_for('student_drives') }}" class="nav-item"><svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 16H4V8h16v12z"/></svg> Placement Drives</a></li>
+                <li><a href="{{ url_for('student_applications') }}" class="nav-item"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> My Applications</a></li>
+                <li><a href="{{ url_for('student_settings') }}" class="nav-item"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .43-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg> Settings</a></li>
+            </ul>
+        </div>
+        <form action="{{ url_for('logout') }}" method="GET" style="margin:0;"><button type="submit" class="sign-out" style="width: 100%;"><svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg> Sign Out</button></form>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="top-header">
+            <h2>Student Dashboard</h2>
+            <div class="header-actions">
+                <button class="notification-btn"><svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg></button>
+                <div class="profile-dropdown">
+                    <div class="avatar-small">
+                        {% if has_photo %}<img src="{{ photo_url }}" alt="Profile">{% else %}{{ student.fname[:1] | upper }}{{ student.lname[:1] | upper }}{% endif %}
+                    </div>
+                    <span class="profile-name">{{ StudentName }}</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-scroll">
+            <div class="content-container">
+                <section class="profile-card">
+                    <div class="profile-info">
+                        <div class="avatar-large" onclick="openModal('upload-photo-modal')">
+                            {% if has_photo %}<img src="{{ photo_url }}" alt="Profile">{% else %}{{ student.fname[:1] | upper }}{{ student.lname[:1] | upper }}{% endif %}
+                            <div class="hover-overlay">Change Photo</div>
+                        </div>
+                        <div class="profile-details">
+                            <h1>{{ StudentName }}</h1>
+                            <div class="profile-meta">
+                                <span class="meta-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> {{ student.department }}, {{ student.passing_year }} Year • CGPA {{ student.cgpa }}</span>
+                                <span class="meta-item"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg> {{ student.email }}</span>
+                                <span class="meta-item"><svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg> {{ student.phone }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-actions">
+                        <button class="btn btn-outline" onclick="openModal('upload-resume-modal')"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> Resume</button>
+                        <a href="{{ url_for('student_settings') }}" class="btn btn-primary" style="text-decoration:none;"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Edit Profile</a>
+                    </div>
+                </section>
+
+                <section class="stats-grid">
+                    <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 16H4V8h16v12z"/></svg></div><div class="stat-value">{{ drives | length }}</div><div class="stat-label">Available Drives</div></div>
+                    <div class="stat-card"><div class="stat-icon" style="background:rgba(16,185,129,0.1); color:#34d399;"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></div><div class="stat-value">{{ total_applications_count }}</div><div class="stat-label">My Applications</div></div>
+                    <div class="stat-card"><div class="stat-icon" style="background:rgba(245,158,11,0.1); color:#f59e0b;"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="stat-value">{{ shortlisted_applications_count }}</div><div class="stat-label">Shortlisted</div></div>
+                </section>
+
+                <section>
+                    <div class="section-header"><h3>Approved Placement Drives</h3><a href="{{ url_for('student_drives') }}" class="view-all">View all</a></div>
+                    <div class="drives-wrapper">
+                        {% for drive in drives %}
+                        <div class="drive-item">
+                            <div class="drive-logo" style="padding: 4px;">
+                                <img src="/static/logos/{{ drive.company_id|string }}.jpg" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <svg style="display:none; width:24px; height:24px; fill:#818cf8;" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 16H4V8h16v12z"/></svg>
+                            </div>
+                            <div class="drive-info">
+                                <h4 class="drive-title">{{ drive.job_title }}</h4>
+                                <div class="drive-company">{{ drive.company_name }}</div>
+                                <div class="drive-meta">
+                                    <span><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> {{ drive.location or 'Not Specified' }}</span>
+                                    <span><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> {{ drive.deadline_str }}</span>
+                                    <span class="salary">{{ drive.salary_str }}</span>
+                                </div>
+                            </div>
+                            <div class="drive-actions">
+                                <button class="icon-btn" onclick="openDriveDetails(this)" data-role="{{ drive.job_title }}" data-company="{{ drive.company_name }}" data-location="{{ drive.location or 'Not Specified' }}" data-salary="{{ drive.salary_str }}" data-deadline="{{ drive.deadline_str }}" data-cgpa="{{ drive.min_cgpa }}" data-applicants="{{ drive.applicants_count }}" data-desc="{{ drive.description }}" data-passyear="{{ drive.pass_year }}"><svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></button>
+                                {% if drive.applied %}<span class="badge badge-applied">APPLIED</span>{% else %}<form action="{{ url_for('apply_drive', drive_id=drive.drive_id) }}" method="POST" style="margin:0;"><button type="submit" class="btn btn-primary" style="padding: 8px 16px;">Apply &rarr;</button></form>{% endif %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div style="padding: 30px; text-align: center; color: var(--text-muted);">No active placement drives found.</div>
+                        {% endfor %}
+                    </div>
+                </section>
+                
+                <section>
+                    <div class="section-header">
+                        <h3>Application History</h3>
+                        <a href="{{ url_for('student_applications') }}" class="view-all">View all</a>
+                    </div>
+                    <div class="history-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>DRIVE</th>
+                                    <th>COMPANY</th>
+                                    <th>APPLIED ON</th>
+                                    <th>STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for history in application_history[:5] %}
+                                <tr class="clickable-row">
+                                    <td class="td-drive">{{ history.drive_title }}</td>
+                                    <td class="td-company">{{ history.company_name }}</td>
+                                    <td>{{ history.applied_on }}</td>
+                                    <td><span class="status-badge status-{{ history.status|lower }}">{{ history.status }}</span></td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                        No applications found. Head to Placement Drives to apply!
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <div id="upload-photo-modal" class="modal-overlay"><div class="modal-container modal-sm"><form action="{{ url_for('upload_student_photo') }}" method="POST" enctype="multipart/form-data"><div class="modal-header"><h3>Update Profile Photo</h3><button type="button" class="close-btn" onclick="closeModal('upload-photo-modal')"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div><div class="modal-body"><div class="upload-dropzone" onclick="document.getElementById('photo-input').click()"><input type="file" id="photo-input" name="photo" accept=".jpg,.jpeg" required onchange="document.getElementById('photo-text').innerText = 'Selected: ' + this.files[0].name"><svg style="width:32px; height:32px; fill:var(--text-muted); margin-bottom:10px;" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg><div style="font-size:15px; font-weight:600; color:#fff;" id="photo-text">Drag & drop your photo</div><div style="font-size:12px; color:var(--text-muted); margin-top:5px;">JPG or JPEG Only</div></div></div><div class="modal-footer"><button type="button" class="btn btn-outline" style="border:none;" onclick="closeModal('upload-photo-modal')">Cancel</button><button type="submit" class="btn btn-primary">Upload</button></div></form></div></div>
+
+    <div id="upload-resume-modal" class="modal-overlay"><div class="modal-container modal-sm"><form action="{{ url_for('upload_resume') }}" method="POST" enctype="multipart/form-data"><div class="modal-header"><h3>Upload Resume</h3><button type="button" class="close-btn" onclick="closeModal('upload-resume-modal')"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div><div class="modal-body"><div class="upload-dropzone" onclick="document.getElementById('resume-input').click()"><input type="file" id="resume-input" name="resume" accept=".pdf" required onchange="document.getElementById('resume-text').innerText = 'Selected: ' + this.files[0].name"><svg style="width:32px; height:32px; fill:var(--text-muted); margin-bottom:10px;" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg><div style="font-size:15px; font-weight:600; color:#fff;" id="resume-text">Drag & drop your resume</div><div style="font-size:12px; color:var(--text-muted); margin-top:5px;">PDF Only</div></div></div><div class="modal-footer"><button type="button" class="btn btn-outline" style="border:none;" onclick="closeModal('upload-resume-modal')">Cancel</button><button type="submit" class="btn btn-primary">Upload</button></div></form></div></div>
+
+    <div id="drive-details-modal" class="modal-overlay"><div class="modal-container modal-md"><div class="modal-header"><h3>Drive Details</h3><button type="button" class="close-btn" onclick="closeModal('drive-details-modal')"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div><div class="modal-body"><div class="drive-header-block"><div class="drive-header-main"><div class="drive-logo"><svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 16H4V8h16v12z"/></svg></div><div><h4 id="detail-role" style="font-size: 16px; color: #fff; margin-bottom: 4px;"></h4><p id="detail-company" style="color: var(--text-muted); font-size: 13px;"></p></div></div></div>
+    <div class="drive-meta-grid" style="grid-template-columns: repeat(5, 1fr);">
+        <div class="meta-box"><div class="meta-label">LOCATION</div><div id="detail-location" class="meta-value"></div></div>
+        <div class="meta-box"><div class="meta-label">SALARY</div><div id="detail-salary" class="meta-value" style="color: #10b981;"></div></div>
+        <div class="meta-box"><div class="meta-label">DEADLINE</div><div id="detail-deadline" class="meta-value"></div></div>
+        <div class="meta-box"><div class="meta-label">MIN CGPA</div><div id="detail-cgpa" class="meta-value"></div></div>
+        <div class="meta-box"><div class="meta-label">APPLICANTS</div><div id="detail-applicants" class="meta-value"></div></div>
+    </div>
+    <div class="detail-section"><h5 class="section-title">JOB DESCRIPTION</h5><p id="detail-desc" class="section-text"></p></div><div class="detail-section"><h5 class="section-title">ELIGIBILITY</h5><ul id="detail-eligibility" class="eligibility-list"></ul></div></div></div></div>
+
+    <script>
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        document.querySelectorAll('.modal-overlay').forEach(overlay => { overlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); }); });
+
+        function openDriveDetails(btn) {
+            const cgpa = btn.getAttribute('data-cgpa');
+            const formattedCgpa = cgpa ? parseFloat(cgpa).toFixed(1) : '7.0';
+            document.getElementById('detail-role').textContent = btn.getAttribute('data-role');
+            document.getElementById('detail-company').textContent = btn.getAttribute('data-company');
+            document.getElementById('detail-location').textContent = btn.getAttribute('data-location');
+            document.getElementById('detail-salary').textContent = btn.getAttribute('data-salary');
+            document.getElementById('detail-deadline').textContent = btn.getAttribute('data-deadline');
+            document.getElementById('detail-cgpa').textContent = formattedCgpa;
+            document.getElementById('detail-applicants').textContent = btn.getAttribute('data-applicants');
+            document.getElementById('detail-desc').textContent = btn.getAttribute('data-desc') || "No description provided.";
+            document.getElementById('detail-eligibility').innerHTML = `
+                <li class="eligibility-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> B.Tech/BE in CS, IT, or ECE</li>
+                <li class="eligibility-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> CGPA ≥ ${formattedCgpa}</li>
+                <li class="eligibility-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> ${btn.getAttribute('data-passyear') || '2026'} passing batch</li>`;
+            openModal('drive-details-modal');
+        }
+    </script>
+</body>
+</html>

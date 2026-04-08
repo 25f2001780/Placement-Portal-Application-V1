@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>Applications - Admin PlaceHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-body: #0b0f19; --bg-surface: #111522; --bg-surface-hover: #1a1f2e; --border-color: #1f2537; --text-main: #f3f4f6; --text-muted: #9ca3af; --accent-solid: #6366f1; --status-applied-text: #3b82f6; --status-applied-bg: rgba(59, 130, 246, 0.1); --status-shortlisted-text: #f59e0b; --status-shortlisted-bg: rgba(245, 158, 11, 0.1); --status-selected-text: #10b981; --status-selected-bg: rgba(16, 185, 129, 0.1); --status-rejected-text: #ef4444; --status-rejected-bg: rgba(239, 68, 68, 0.1); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; } body { background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; font-size: 14px; } a { text-decoration: none; color: inherit; } ul { list-style: none; } button { cursor: pointer; border: none; background: none; color: inherit; }
+        .sidebar { width: 250px; background-color: var(--bg-surface); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px 20px; } .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; } .brand svg { width: 28px; height: 28px; fill: #06b6d4; } .brand h1 { font-size: 18px; font-weight: 600; color: #fff; } .role-badge { background: #1f2537; color: var(--text-muted); font-size: 10px; padding: 4px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase; }
+        .nav-menu { flex: 1; display: flex; flex-direction: column; gap: 8px; } .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: var(--text-muted); font-weight: 500; transition: 0.2s; } .nav-item svg { width: 18px; height: 18px; fill: currentColor; } .nav-item:hover, .nav-item.active { background-color: rgba(99, 102, 241, 0.1); color: #fff; } .nav-item.active svg { fill: var(--accent-solid); }
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; } .top-header { height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 1px solid var(--border-color); background-color: var(--bg-body); flex-shrink: 0; } .top-header h2 { font-size: 18px; font-weight: 600; }
+        .header-actions { display: flex; align-items: center; gap: 24px; } .avatar-small { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; } .profile-dropdown { display: flex; align-items: center; gap: 12px; }
+        .content-scroll { flex: 1; overflow-y: auto; padding: 32px 40px; } .content-container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; } .stat-card { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 8px;} .stat-value { font-size: 32px; font-weight: 700; } .stat-label { color: var(--text-muted); font-size: 13px; font-weight: 500; }
+        .controls-bar { display: flex; gap: 16px; align-items: center; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 16px; } .search-box { flex: 1; display: flex; align-items: center; gap: 12px; } .search-box input { background: transparent; border: none; color: #fff; outline: none; width: 100%; font-size: 14px; } .search-box svg { fill: var(--text-muted); width: 20px; height: 20px; }
+        .table-wrapper { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; } table { width: 100%; border-collapse: collapse; text-align: left; } th { padding: 16px 24px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border-color); } td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 13px; } tr:last-child td { border-bottom: none; }
+        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; } .status-applied { background: var(--status-applied-bg); color: var(--status-applied-text); } .status-shortlisted { background: var(--status-shortlisted-bg); color: var(--status-shortlisted-text); } .status-selected { background: var(--status-selected-bg); color: var(--status-selected-text); } .status-rejected { background: var(--status-rejected-bg); color: var(--status-rejected-text); }
+        .action-icons { display: flex; gap: 8px; } .action-btn { color: var(--text-muted); padding: 4px; border-radius: 4px; border: 1px solid transparent; } .action-btn:hover { background: rgba(255,255,255,0.05); color:#fff; } .action-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+        /* Modal Styles */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 100; } .modal-overlay.active { display: flex; } .modal-container { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border-color); } .modal-header h3 { font-size: 16px; font-weight: 600; color: #fff; } .close-btn { color: var(--text-muted); transition: 0.2s; } .close-btn:hover { color: #fff; } .close-btn svg { width: 20px; height: 20px; fill: currentColor; }
+        .modal-body { padding: 24px; overflow-y: auto; }
+        .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; } .meta-box { display: flex; flex-direction: column; gap: 6px; } .meta-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; } .meta-value { font-size: 14px; font-weight: 500; color: #fff; }
+        .header-block { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; } .header-avatar { width: 48px; height: 48px; border-radius: 50%; background-color: rgba(255,255,255,0.05); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px; position: relative; overflow: hidden; }
+        .btn-outline { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-weight: 500; font-size: 13px; border: 1px solid var(--border-color); color: var(--text-main); transition: 0.2s; } .btn-outline:hover { background-color: var(--bg-surface-hover); } .btn-outline svg { width: 16px; height: 16px; fill: currentColor; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div>
+            <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 5.8l5.5 11H6.5L12 7.8z"/></svg><h1>PlaceHub</h1><span class="role-badge">ADMIN</span></div>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('admin_dashboard') }}" class="nav-item"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard</a></li>
+                <li><a href="{{ url_for('admin_students') }}" class="nav-item"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg> Students</a></li>
+                <li><a href="{{ url_for('admin_companies') }}" class="nav-item"><svg viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg> Companies</a></li>
+                <li><a href="{{ url_for('admin_drives') }}" class="nav-item"><svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 16H4V8h16v12z"/></svg> Placement Drives</a></li>
+                <li><a href="{{ url_for('admin_applications') }}" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Applications</a></li>
+            </ul>
+        </div>
+        <form action="{{ url_for('logout') }}" method="GET" style="margin:0;"><button type="submit" class="sign-out" style="width:100%; display:flex; align-items:center; gap:12px; color:var(--text-muted); padding:12px 16px; border-radius:8px; transition:0.2s;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg> Sign Out</button></form>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="top-header">
+            <h2>Applications</h2>
+            <div class="header-actions"><div class="profile-dropdown"><div class="avatar-small">A</div><span style="font-weight:500;">Admin</span></div></div>
+        </header>
+
+        <div class="content-scroll">
+            <div class="content-container">
+                <div class="stats-grid">
+                    <div class="stat-card"><span class="stat-label">Total Applications</span><span class="stat-value" style="color:#a855f7;">{{ apps|length }}</span></div>
+                    <div class="stat-card"><span class="stat-label">Applied</span><span class="stat-value" style="color:#3b82f6;">{{ apps|selectattr('status', 'equalto', 'applied')|list|length }}</span></div>
+                    <div class="stat-card"><span class="stat-label">Shortlisted</span><span class="stat-value" style="color:#f59e0b;">{{ apps|selectattr('status', 'equalto', 'shortlisted')|list|length }}</span></div>
+                    <div class="stat-card"><span class="stat-label">Selected</span><span class="stat-value" style="color:#10b981;">{{ apps|selectattr('status', 'equalto', 'selected')|list|length }}</span></div>
+                </div>
+
+                <div class="controls-bar">
+                    <div class="search-box"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 12.01 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 12.01 14 9.5 14z"/></svg><input type="text" placeholder="Search applications..."></div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>ID</th><th>STUDENT</th><th>DRIVE</th><th>COMPANY</th><th>APPLIED ON</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+                        <tbody>
+                            {% for app in apps %}
+                            <tr>
+                                <td style="color:var(--text-muted);">APP{{ app.application_id }}</td>
+                                <td>
+                                    <div style="display:flex; align-items:center; gap:12px;">
+                                        <div style="width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.05); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; color:#fff; font-size:11px; font-weight:600;">
+                                            <img src="/static/photos/{{ app.student.student_id }}.jpg" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" style="width:100%; height:100%; object-fit:cover;">
+                                            <div style="display:none; align-items:center; justify-content:center; width:100%; height:100%;">{{ app.student.fname[:1]|upper }}{{ app.student.lname[:1]|upper }}</div>
+                                        </div>
+                                        <div><div style="font-weight:600; color:#fff;">{{ app.student.fname }} {{ app.student.lname }}</div><div style="color:var(--text-muted); font-size:11px;">STU{{ app.student.student_id }}</div></div>
+                                    </div>
+                                </td>
+                                <td style="font-weight:600; color:#fff;">{{ app.drive.job_title }}</td>
+                                <td>
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <div style="width:20px; height:20px; background:rgba(99,102,241,0.1); color:#818cf8; border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;">
+                                            <img src="/static/logos/{{ app.drive.company_id }}.jpg" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" style="width:100%; height:100%; object-fit:contain;">
+                                            <svg style="display:none; width:10px; fill:currentColor;" viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2z"/></svg>
+                                        </div>
+                                        <div style="color:var(--text-muted);">{{ app.drive.company.company_name }}</div>
+                                    </div>
+                                </td>
+                                <td>{{ app.applied_on.strftime("%b %d, %Y") if app.applied_on else 'N/A' }}</td>
+                                <td><span class="status-badge status-{{ app.status|lower }}">{{ app.status }}</span></td>
+                                <td>
+                                    <div class="action-icons">
+                                        <button class="action-btn" title="View" onclick="openAppModal(this)" data-id="{{ app.student.student_id }}" data-student="{{ app.student.fname }} {{ app.student.lname }}" data-drive="{{ app.drive.job_title }}" data-company="{{ app.drive.company.company_name }}" data-dept="{{ app.student.department }}" data-cgpa="{{ app.student.cgpa }}" data-email="{{ app.student.email }}" data-phone="{{ app.student.phone }}" data-status="{{ app.status }}" data-date="{{ app.applied_on.strftime('%b %d, %Y') if app.applied_on else 'N/A' }}"><svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="app-modal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><h3>Applicant Details</h3><button type="button" class="close-btn" onclick="closeModal('app-modal')"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div><div class="modal-body"><div class="header-block">
+        <div class="header-avatar">
+            <img id="ma-avatar-img" src="" onerror="this.style.display='none'; document.getElementById('ma-avatar-initials').style.display='flex';" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+            <div id="ma-avatar-initials" style="display:none; align-items:center; justify-content:center; width:100%; height:100%;">ST</div>
+        </div>
+        <div><h4 id="ma-name" style="font-size:16px; color:#fff; margin-bottom:4px;"></h4><p id="ma-subtitle" style="color:var(--text-muted); font-size:13px;"></p></div></div><div class="meta-grid"><div class="meta-box"><div class="meta-label">DEPARTMENT</div><div id="ma-dept" class="meta-value"></div></div><div class="meta-box"><div class="meta-label">CGPA</div><div id="ma-cgpa" class="meta-value"></div></div><div class="meta-box"><div class="meta-label">EMAIL</div><div id="ma-email" class="meta-value"></div></div><div class="meta-box"><div class="meta-label">PHONE</div><div id="ma-phone" class="meta-value"></div></div></div>
+        
+        <div style="border-top: 1px solid var(--border-color); padding-top: 24px; margin-top: 8px;">
+            <a id="ma-resume-btn" href="#" target="_blank" class="btn-outline">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> View Resume
+            </a>
+        </div>
+    </div></div></div>
+
+    <script>
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        document.querySelectorAll('.modal-overlay').forEach(overlay => { overlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); }); });
+
+        function openAppModal(btn) {
+            let name = btn.getAttribute('data-student');
+            let id = btn.getAttribute('data-id');
+            
+            const imgEl = document.getElementById('ma-avatar-img');
+            const initEl = document.getElementById('ma-avatar-initials');
+            imgEl.style.display = 'block'; initEl.style.display = 'none';
+            imgEl.src = `/static/photos/${id}.jpg`;
+            initEl.textContent = name ? name.substring(0,2).toUpperCase() : 'ST';
+
+            document.getElementById('ma-name').textContent = name;
+            document.getElementById('ma-subtitle').textContent = `Applied for ${btn.getAttribute('data-drive')} at ${btn.getAttribute('data-company')} • ${btn.getAttribute('data-date')}`;
+            document.getElementById('ma-dept').textContent = btn.getAttribute('data-dept');
+            document.getElementById('ma-cgpa').textContent = btn.getAttribute('data-cgpa');
+            document.getElementById('ma-email').textContent = btn.getAttribute('data-email');
+            document.getElementById('ma-phone').textContent = btn.getAttribute('data-phone');
+            
+            // Assign resume link
+            document.getElementById('ma-resume-btn').href = `/static/resumes/${id}.pdf`;
+            
+            openModal('app-modal');
+        }
+    </script>
+</body>
+</html>

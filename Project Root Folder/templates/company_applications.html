@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applications - PlaceHub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-body: #0b0f19; --bg-surface: #111522; --bg-surface-hover: #1a1f2e; --bg-input: #151926; --border-color: #1f2537; --text-main: #f3f4f6; --text-muted: #9ca3af; --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%); --accent-solid: #6366f1; --status-pending-text: #f59e0b; --status-pending-bg: rgba(245, 158, 11, 0.1); --status-active-text: #10b981; --status-active-bg: rgba(16, 185, 129, 0.1); --status-closed-text: #ef4444; --status-closed-bg: rgba(239, 68, 68, 0.1); }
+        * { box-sizing: border-box; margin: 0; padding: 0; } body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; font-size: 14px; } a { text-decoration: none; color: inherit; } ul { list-style: none; } button { cursor: pointer; border: none; background: none; color: inherit; } input, select { font-family: inherit; }
+        
+        .sidebar { width: 250px; background-color: var(--bg-surface); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px 20px; } .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; } .brand svg { width: 28px; height: 28px; fill: var(--accent-solid); } .brand h1 { font-size: 18px; font-weight: 600; color: #fff; } .role-badge { background: #1f2537; color: var(--text-muted); font-size: 10px; padding: 4px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase; }
+        .nav-menu { flex: 1; display: flex; flex-direction: column; gap: 8px; } .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: var(--text-muted); font-weight: 500; transition: 0.2s; } .nav-item svg { width: 18px; height: 18px; fill: currentColor; } .nav-item:hover, .nav-item.active { background-color: rgba(99, 102, 241, 0.1); color: #fff; } .nav-item.active svg { fill: var(--accent-solid); }
+        .sign-out { display: flex; align-items: center; gap: 12px; color: var(--text-muted); padding: 12px 16px; margin-top: auto; font-weight: 500; border-radius: 8px; transition: 0.2s; } .sign-out svg { width: 18px; height: 18px; fill: currentColor; } .sign-out:hover { color: #fff; background-color: var(--bg-surface-hover); }
+        
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .top-header { height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 1px solid var(--border-color); background-color: var(--bg-body); flex-shrink: 0; } .top-header h2 { font-size: 18px; font-weight: 600; } .header-actions { display: flex; align-items: center; gap: 24px; } .notification-btn { color: var(--text-muted); } .notification-btn svg { width: 20px; height: 20px; fill: currentColor; } .profile-dropdown { display: flex; align-items: center; gap: 12px; cursor: pointer; } .avatar-small { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; text-transform: uppercase; } .profile-name { font-weight: 500; }
+        .content-scroll { flex: 1; overflow-y: auto; padding: 32px 40px; } .content-container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+
+        /* Stats Cards */
+        .app-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .app-stat-card { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 8px; }
+        .app-stat-label { color: var(--text-muted); font-size: 13px; font-weight: 500; }
+        .app-stat-value { font-size: 32px; font-weight: 700; }
+        .val-total { color: #d8b4fe; } .val-applied { color: #93c5fd; } .val-short { color: #fde047; } .val-selected { color: #86efac; }
+
+        /* Controls */
+        .controls-bar { display: flex; gap: 16px; background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 16px; align-items: center; }
+        .search-box { flex: 1; display: flex; align-items: center; gap: 12px; } .search-box svg { width: 20px; height: 20px; fill: var(--text-muted); } .search-box input { flex: 1; background: transparent; border: none; color: #fff; outline: none; font-size: 14px; }
+        .filter-select { background-color: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 10px 16px; border-radius: 8px; outline: none; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%238d8e96" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position-x: 95%; background-position-y: center; padding-right: 32px; }
+
+        /* Table */
+        .table-wrapper { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; text-align: left; } th { padding: 16px 24px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border-color); } td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 13px; color: var(--text-main); } tr:last-child td { border-bottom: none; } .clickable-row { cursor: pointer; transition: background 0.2s; } .clickable-row:hover { background-color: var(--bg-surface-hover); }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .status-active, .status-approved { background-color: var(--status-active-bg); color: var(--status-active-text); } .status-pending, .status-applied { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; } .status-shortlisted { background-color: var(--status-pending-bg); color: var(--status-pending-text); } .status-selected { background-color: var(--status-active-bg); color: var(--status-active-text); } .status-closed, .status-rejected { background-color: var(--status-closed-bg); color: var(--status-closed-text); }
+        .icon-action { color: var(--text-muted); padding: 6px; border-radius: 6px; } .icon-action:hover { background-color: rgba(255,255,255,0.05); color: #fff; } .icon-action svg { width: 16px; height: 16px; fill: currentColor; }
+
+        /* Modal Specifics */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 100; } .modal-overlay.active { display: flex; } .modal-container { background-color: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); max-height: 90vh; display: flex; flex-direction: column; max-width: 500px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 24px; border-bottom: 1px solid var(--border-color); } .modal-header h3 { font-size: 16px; font-weight: 600; color: #fff; } .close-btn { color: var(--text-muted); } .close-btn:hover { color: #fff; } .close-btn svg { width: 20px; height: 20px; fill: currentColor; } .modal-body { padding: 24px; overflow-y: auto; }
+        .btn-outline { border: 1px solid var(--border-color); color: var(--text-main); padding: 10px 20px; border-radius: 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; } .btn-primary { background: var(--accent-gradient); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div>
+            <div class="brand"><svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 5.8l5.5 11H6.5L12 7.8z"/></svg><h1>PlaceHub</h1><span class="role-badge">COMPANY</span></div>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('company_dashboard') }}" class="nav-item"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard</a></li>
+                <li><a href="{{ url_for('company_drives') }}" class="nav-item"><svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 16H4V8h16v12z"/></svg> My Drives</a></li>
+                <li><a href="{{ url_for('company_applications') }}" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Applications</a></li>
+                <li><a href="{{ url_for('company_settings') }}" class="nav-item"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .43-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg> Profile Settings</a></li>
+            </ul>
+        </div>
+        <form action="{{ url_for('logout') }}" method="GET" style="margin:0;"><button type="submit" class="sign-out" style="width: 100%;"><svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg> Sign Out</button></form>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="top-header">
+            <h2>Applications</h2>
+            <div class="header-actions">
+                <div class="profile-dropdown">
+                    <div class="avatar-small">{{ company.company_name[:2] | upper }}</div>
+                    <span class="profile-name">{{ company.company_name }}</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-scroll">
+            <div class="content-container">
+                
+                <div class="app-stats-grid">
+                    <div class="app-stat-card"><span class="app-stat-label">Total</span><span class="app-stat-value val-total">{{ all_applicants|length }}</span></div>
+                    <div class="app-stat-card"><span class="app-stat-label">Applied</span><span class="app-stat-value val-applied">{{ all_applicants|selectattr('status', 'equalto', 'APPLIED')|list|length }}</span></div>
+                    <div class="app-stat-card"><span class="app-stat-label">Shortlisted</span><span class="app-stat-value val-short">{{ all_applicants|selectattr('status', 'equalto', 'SHORTLISTED')|list|length }}</span></div>
+                    <div class="app-stat-card"><span class="app-stat-label">Selected</span><span class="app-stat-value val-selected">{{ all_applicants|selectattr('status', 'equalto', 'SELECTED')|list|length }}</span></div>
+                </div>
+
+                <div class="controls-bar">
+                    <div class="search-box"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 12.01 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 12.01 14 9.5 14z"/></svg><input type="text" placeholder="Search students..."></div>
+                    <select class="filter-select"><option>All Drives</option></select>
+                    <select class="filter-select"><option>All Status</option></select>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>STUDENT</th><th>DRIVE</th><th>DEPT</th><th>CGPA</th><th>APPLIED ON</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+                        <tbody>
+                            {% for app in all_applicants %}
+                            <tr class="clickable-row" onclick="openRecentApplicantDetail('{{ app.app_id }}')">
+                                <td><div style="font-weight:600; color:#fff; margin-bottom:4px;">{{ app.name }}</div><div style="color:var(--text-muted); font-size:11px;">STU00{{ app.student_id }}</div></td>
+                                <td>{{ app.job_title }}</td>
+                                <td>{{ app.department }}</td>
+                                <td style="font-weight: 600; color: #fff;">{{ app.cgpa }}</td>
+                                <td>{{ app.applied_on }}</td>
+                                <td><span class="status-badge status-{{ app.status|lower }}">{{ app.status }}</span></td>
+                                <td><button class="icon-action"><svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></button></td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">No applications found.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <div id="applicant-details-modal" class="modal-overlay">
+        <div class="modal-container">
+            <form id="app-status-form" method="POST">
+                <div class="modal-header"><h3>Applicant Details</h3><button type="button" class="close-btn" onclick="closeModal('applicant-details-modal')"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div>
+                <div class="modal-body">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
+                        <div id="app-avatar-container" style="width: 48px; height: 48px; border-radius: 50%; background-color: rgba(16, 185, 129, 0.1); color: #10b981; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px; overflow: hidden; position: relative;">
+                            <img id="app-avatar-img" src="" onerror="this.style.display='none'; document.getElementById('app-avatar-initials').style.display='flex';" style="width: 100%; height: 100%; object-fit: cover;">
+                            <div id="app-avatar-initials" style="display: none; align-items: center; justify-content: center; width: 100%; height: 100%;">AS</div>
+                        </div>
+                        <div><h4 id="app-name" style="font-size: 16px; color: #fff; margin-bottom: 4px;"></h4><p id="app-subtitle" style="color: var(--text-muted); font-size: 13px;"></p></div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
+                        <div style="display: flex; flex-direction: column; gap: 6px;"><div style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">DEPARTMENT</div><div id="app-dept" style="font-size: 14px; font-weight: 500; color: #fff;"></div></div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;"><div style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">CGPA</div><div id="app-cgpa" style="font-size: 14px; font-weight: 500; color: #fff;"></div></div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;"><div style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">EMAIL</div><div id="app-email" style="font-size: 14px; font-weight: 500; color: #fff;"></div></div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;"><div style="font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">PHONE</div><div id="app-phone" style="font-size: 14px; font-weight: 500; color: #fff;"></div></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 24px; margin-top: 8px;">
+                        <a id="app-resume-btn" href="#" target="_blank" class="btn-outline"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> View Resume</a>
+                        <div style="display: flex; gap: 12px; align-items: center;">
+                            <select name="status" id="app-status-select" style="background-color: var(--bg-input); border: 1px solid var(--border-color); color: #fff; padding: 10px 16px; border-radius: 8px; outline: none;"><option value="applied">Applied</option><option value="shortlisted">Shortlisted</option><option value="selected">Selected</option><option value="rejected">Rejected</option></select>
+                            <button type="submit" class="btn-primary">Update Status</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const allAppsData = {{ all_applicants | tojson | safe }}; 
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        document.querySelectorAll('.modal-overlay').forEach(overlay => { overlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); }); });
+
+        function openRecentApplicantDetail(appId) {
+            const app = allAppsData.find(a => a.app_id == appId);
+            if (!app) return;
+            
+            const initials = app.name ? app.name.substring(0, 2).toUpperCase() : 'ST';
+            const imgEl = document.getElementById('app-avatar-img');
+            const initEl = document.getElementById('app-avatar-initials');
+            
+            imgEl.style.display = 'block'; initEl.style.display = 'none';
+            imgEl.src = `/static/photos/${app.student_id}.jpg`;
+            initEl.textContent = initials;
+
+            document.getElementById('app-name').textContent = app.name;
+            document.getElementById('app-subtitle').textContent = `Applied for ${app.job_title} • ${app.applied_on}`;
+            document.getElementById('app-dept').textContent = app.department;
+            document.getElementById('app-cgpa').textContent = `${app.cgpa} / 10`;
+            document.getElementById('app-email').textContent = app.email;
+            document.getElementById('app-phone').textContent = app.phone;
+            document.getElementById('app-resume-btn').href = `/static/resumes/${app.student_id}.pdf`;
+            
+            document.getElementById('app-status-form').action = `/updateApplicationStatus/${app.app_id}`;
+            document.getElementById('app-status-select').value = app.status.toLowerCase();
+
+            openModal('applicant-details-modal');
+        }
+    </script>
+</body>
+</html>
